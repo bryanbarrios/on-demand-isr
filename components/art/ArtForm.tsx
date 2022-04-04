@@ -16,6 +16,7 @@ import {
   FormErrorMessage,
   Text,
   FormHelperText,
+  useToast,
 } from "@chakra-ui/react";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
@@ -57,6 +58,8 @@ interface ArtFormProps {
 }
 
 const ArtForm: FC<ArtFormProps> = ({ isOpen, onClose }) => {
+  const toast = useToast();
+
   const methods = useForm<ArtForm>({
     resolver: yupResolver(schema),
   });
@@ -77,7 +80,17 @@ const ArtForm: FC<ArtFormProps> = ({ isOpen, onClose }) => {
       body: JSON.stringify({ artUrl, ...data }),
     });
 
-    response.ok && onClose();
+    if (response.ok) {
+      onClose();
+      toast({
+        title: "Art submitted",
+        description: "Reload the page.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   });
 
   return (
