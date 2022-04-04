@@ -66,7 +66,10 @@ const Home: NextPage<Props> = ({ arts }) => {
 };
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const { data } = await supabase.from<Art>("art").select("*").order("title");
+  const { data } = await supabase
+    .from<Art>("art")
+    .select("*")
+    .order("creationDate");
   const stringifiedData = safeJsonStringify(data ?? []);
   const arts = JSON.parse(stringifiedData);
 
