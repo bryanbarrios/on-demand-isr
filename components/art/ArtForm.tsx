@@ -1,22 +1,16 @@
 import { FC } from "react";
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
   FormControl,
   FormLabel,
   Input,
-  ModalFooter,
   Button,
   Textarea,
   Wrap,
   FormErrorMessage,
   Text,
   FormHelperText,
-  useToast,
+  Box,
+  Heading,
 } from "@chakra-ui/react";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
@@ -53,13 +47,10 @@ const schema = yup.object({
 });
 
 interface ArtFormProps {
-  isOpen: boolean;
-  onClose: () => void;
+  onSubmit: () => void;
 }
 
-const ArtForm: FC<ArtFormProps> = ({ isOpen, onClose }) => {
-  const toast = useToast();
-
+const ArtForm: FC<ArtFormProps> = ({ onSubmit }) => {
   const methods = useForm<ArtForm>({
     resolver: yupResolver(schema),
   });
@@ -69,7 +60,7 @@ const ArtForm: FC<ArtFormProps> = ({ isOpen, onClose }) => {
     formState: { errors, isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (validatedData) => {
+  const handleFormSubmit = handleSubmit(async (validatedData) => {
     const { art, ...data } = validatedData;
     const artUrl = await uploadImage(art);
     const response = await fetch("/api/art", {
@@ -81,150 +72,113 @@ const ArtForm: FC<ArtFormProps> = ({ isOpen, onClose }) => {
     });
 
     if (response.ok) {
-      onClose();
-      toast({
-        title: "Art submitted",
-        description: "Reload the page.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      });
+      onSubmit();
     }
   });
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="lg"
-      isCentered
-      scrollBehavior="outside"
-      /* motionPreset="slideInBottom" */
-    >
-      <ModalOverlay
-        bg="blackAlpha.300"
-        backdropFilter="blur(16px) hue-rotate(90deg)"
-      />
-      <ModalContent
-        mt="auto"
-        mb={["0px", "auto"]}
-        borderRadius={["1.5rem 1.5rem 0px 0px", "1.5rem"]}
-      >
-        <FormProvider {...methods}>
-          <form onSubmit={onSubmit}>
-            <ModalHeader
-              pb="0"
-              letterSpacing="tight"
-              bgGradient="linear(to-r, blue.400, cyan.400)"
-              bgClip="text"
-              fontSize="3xl"
-              fontWeight="black"
-            >
-              Add and art
-            </ModalHeader>
-            <Text
-              px="6"
-              letterSpacing="tight"
-              pb="1"
-              bgGradient="linear(to-r, blue.400, cyan.400)"
-              bgClip="text"
-              fontWeight="medium"
-              fontSize="lg"
-            >
-              Feel free to add the artwork of your favorite artist.
-            </Text>
-            <ModalCloseButton
-              bgColor="gray.50"
-              _hover={{ bgColor: "gray.100" }}
-              w="10"
-              h="10"
-              borderRadius="full"
+    <FormProvider {...methods}>
+      <form onSubmit={handleFormSubmit}>
+        <Box px="6" pt="6" pb="2">
+          <Heading
+            letterSpacing="tight"
+            bgGradient="linear(to-r, blue.400, cyan.400)"
+            bgClip="text"
+            fontSize="3xl"
+            fontWeight="black"
+          >
+            Add and art
+          </Heading>
+          <Text
+            letterSpacing="tight"
+            bgGradient="linear(to-r, blue.400, cyan.400)"
+            bgClip="text"
+            fontWeight="medium"
+            fontSize="lg"
+          >
+            Feel free to add the artwork of your favorite artist.
+          </Text>
+        </Box>
+        <Wrap spacing="3" px="6">
+          <FormControl isInvalid={Boolean(errors.title)}>
+            <FormLabel fontSize="sm">Title</FormLabel>
+            <Input
+              variant="outline"
+              placeholder="What's the masterpiece?"
+              {...register("title")}
             />
-            <ModalBody>
-              <Wrap spacing="3">
-                <FormControl isInvalid={Boolean(errors.title)}>
-                  <FormLabel fontSize="sm">Title</FormLabel>
-                  <Input
-                    variant="outline"
-                    placeholder="What's the masterpiece?"
-                    {...register("title")}
-                  />
-                  <FormErrorMessage>
-                    {errors.title && errors.title.message}
-                  </FormErrorMessage>
-                </FormControl>
+            <FormErrorMessage>
+              {errors.title && errors.title.message}
+            </FormErrorMessage>
+          </FormControl>
 
-                <FormControl isInvalid={Boolean(errors.description)}>
-                  <FormLabel fontSize="sm">Description</FormLabel>
-                  <Textarea
-                    variant="outline"
-                    placeholder="Tell us about the art"
-                    resize="none"
-                    {...register("description")}
-                  />
-                  <FormErrorMessage>
-                    {errors.description && errors.description.message}
-                  </FormErrorMessage>
-                </FormControl>
+          <FormControl isInvalid={Boolean(errors.description)}>
+            <FormLabel fontSize="sm">Description</FormLabel>
+            <Textarea
+              variant="outline"
+              placeholder="Tell us about the art"
+              resize="none"
+              {...register("description")}
+            />
+            <FormErrorMessage>
+              {errors.description && errors.description.message}
+            </FormErrorMessage>
+          </FormControl>
 
-                <FormControl isInvalid={Boolean(errors.artist)}>
-                  <FormLabel fontSize="sm">Artist</FormLabel>
-                  <Input
-                    variant="outline"
-                    placeholder="Who was the artist?"
-                    {...register("artist")}
-                  />
-                  <FormErrorMessage>
-                    {errors.artist && errors.artist.message}
-                  </FormErrorMessage>
-                </FormControl>
+          <FormControl isInvalid={Boolean(errors.artist)}>
+            <FormLabel fontSize="sm">Artist</FormLabel>
+            <Input
+              variant="outline"
+              placeholder="Who was the artist?"
+              {...register("artist")}
+            />
+            <FormErrorMessage>
+              {errors.artist && errors.artist.message}
+            </FormErrorMessage>
+          </FormControl>
 
-                <FormControl isInvalid={Boolean(errors.creationDate)}>
-                  <FormLabel fontSize="sm">Creation date</FormLabel>
-                  <Input
-                    variant="outline"
-                    type="date"
-                    {...register("creationDate")}
-                  />
-                  <FormErrorMessage>
-                    {errors.creationDate && errors.creationDate.message}
-                  </FormErrorMessage>
-                </FormControl>
-                <FormControl isInvalid={Boolean(errors.art)}>
-                  <FormLabel fontSize="sm">Art</FormLabel>
-                  <Dropzone
-                    name="art"
-                    options={{
-                      accept: SUPPORTED_FORMATS,
-                      maxSize: MAX_FILE_SIZE,
-                      multiple: false,
-                    }}
-                  />
-                  <FormHelperText>
-                    PNG, JPG, GIF up to 5MB (recommended size: 1080px x 1080px)
-                  </FormHelperText>
-                  <FormErrorMessage>
-                    {errors.art && errors.art.message}
-                  </FormErrorMessage>
-                </FormControl>
-              </Wrap>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                type="submit"
-                colorScheme="twitter"
-                isLoading={isSubmitting}
-                borderRadius="xl"
-                w="full"
-              >
-                Submit
-              </Button>
-            </ModalFooter>
-          </form>
-        </FormProvider>
-      </ModalContent>
-    </Modal>
+          <FormControl isInvalid={Boolean(errors.creationDate)}>
+            <FormLabel fontSize="sm">Creation date</FormLabel>
+            <Input
+              variant="outline"
+              type="date"
+              {...register("creationDate")}
+            />
+            <FormErrorMessage>
+              {errors.creationDate && errors.creationDate.message}
+            </FormErrorMessage>
+          </FormControl>
+          <FormControl isInvalid={Boolean(errors.art)}>
+            <FormLabel fontSize="sm">Art</FormLabel>
+            <Dropzone
+              name="art"
+              options={{
+                accept: SUPPORTED_FORMATS,
+                maxSize: MAX_FILE_SIZE,
+                multiple: false,
+              }}
+            />
+            <FormHelperText>
+              PNG, JPG, GIF up to 5MB (recommended size: 1080px x 1080px)
+            </FormHelperText>
+            <FormErrorMessage>
+              {errors.art && errors.art.message}
+            </FormErrorMessage>
+          </FormControl>
+        </Wrap>
+        <Box px="6" py="4">
+          <Button
+            type="submit"
+            colorScheme="twitter"
+            isLoading={isSubmitting}
+            borderRadius="xl"
+            w="full"
+          >
+            Submit
+          </Button>
+        </Box>
+      </form>
+    </FormProvider>
   );
 };
 

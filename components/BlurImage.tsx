@@ -7,10 +7,10 @@ const BlurImage: FC<ImageProps> = ({ ...props }) => {
 
   const blurUpImage = css({
     transition: ".6s ease-in-out all",
-    filter: isLoading ? "blur(40px)" : "blur(0)",
+    filter: isLoading ? "blur(40px) brightness(2)" : "blur(0) brightness(1)",
     transform: isLoading ? "scale(1.1)" : "scale(1.0)",
     willChange: "transform, filter",
-    borderRadius: "1rem",
+    borderRadius: "1.5rem",
   });
 
   return (

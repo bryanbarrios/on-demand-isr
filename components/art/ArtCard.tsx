@@ -1,19 +1,20 @@
-import { Box, Flex, Text, Avatar } from "@chakra-ui/react";
+import { Box, Flex, Text, Avatar, BoxProps } from "@chakra-ui/react";
 import { Art } from "@/types";
 import BlurImage from "../BlurImage";
 import { FC } from "react";
 
-interface ArtCardProps {
+interface ArtCardProps extends BoxProps {
   art: Art;
 }
 
-const ArtCard: FC<ArtCardProps> = ({ art }) => {
+const ArtCard: FC<ArtCardProps> = ({ art, ...props }) => {
   return (
-    <Box>
+    <Box {...props}>
       <BlurImage
         key={art.id}
-        width="600"
-        height="600"
+        width="300"
+        height="300"
+        layout="responsive"
         src={art.artUrl}
         alt={art.title}
         objectFit="cover"

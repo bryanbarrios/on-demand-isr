@@ -1,5 +1,11 @@
 import { GetStaticProps, NextPage } from "next";
-import { useDisclosure, IconButton, Icon, Container } from "@chakra-ui/react";
+import {
+  useDisclosure,
+  IconButton,
+  Icon,
+  Container,
+  useToast,
+} from "@chakra-ui/react";
 import { supabase } from "@/lib/supabase";
 import safeJsonStringify from "safe-json-stringify";
 import ArtForm from "@/components/art/ArtForm";
@@ -7,6 +13,7 @@ import ArtList from "@/components/art/ArtList";
 import Header from "@/components/Header";
 import { FiPlus } from "react-icons/fi";
 import { Art } from "@/types";
+import Modal from "@/components/Modal";
 
 interface Props {
   arts: Art[];
@@ -14,6 +21,7 @@ interface Props {
 
 const Home: NextPage<Props> = ({ arts }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   return (
     <Container maxW="6xl" mx="auto" py="6">
@@ -30,7 +38,27 @@ const Home: NextPage<Props> = ({ arts }) => {
         icon={<Icon as={FiPlus} w="7" h="7" color="white" />}
         rounded="full"
       />
-      <ArtForm isOpen={isOpen} onClose={onClose} />
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        isCentered
+        scrollBehavior="outside"
+        mode="bottomSheet"
+      >
+        <ArtForm
+          onSubmit={() => {
+            onClose();
+            toast({
+              title: "Art submitted",
+              description: "Reload the page.",
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+              position: "top",
+            });
+          }}
+        />
+      </Modal>
       <Header mb="6" />
       <ArtList arts={arts} />
     </Container>
